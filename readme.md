@@ -24,3 +24,7 @@ Execution Instructions: <br/>
 3.Open the app in web browser @ '127.0.0.1:8000/Calculator_App' <br/>
 4.Enter Session Name. (You may have multiple tabs open under the same session name to test the app)
 
+Demo:<br/>
+
+![Alt Text](https://github.com/RishiSargar/sezzle_challenge/blob/master/Demo/demo.gif)
+
