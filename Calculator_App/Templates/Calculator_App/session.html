@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title>Session</title>
+</head>
+<body>
+
+    <br>
+    <h3 style="text-align: center;">Calculator</h3>
+    <form name="calculator" >
+         <table align="center">
+            <tr>
+               <td colspan="4">
+                  <input type="text" name="display" id="display" disabled>
+               </td>
+            </tr>
+            <tr>
+               <td><input type="button" id="one" name="one" value="1" onclick="CheckOperator('1');this.blur()"></td>
+               <td><input type="button" id="two" name="two" value="2" onclick="CheckOperator('2');this.blur()"></td>
+               <td><input type="button" id="three" name="three" value="3" onclick="CheckOperator('3');this.blur()"></td>
+               <td><input type="button" class="operator" id="plus" name="plus" value="+" onclick="CheckOperator('+');this.blur()"></td>
+            </tr>
+            <tr>
+               <td><input type="button" id="four" name="four" value="4" onclick="CheckOperator('4');this.blur()"></td>
+               <td><input type="button" id="five" name="five" value="5" onclick="CheckOperator('5');this.blur()"></td>
+               <td><input type="button" id="six" name="six" value="6" onclick="CheckOperator('6');this.blur()"></td>
+               <td><input type="button" class="operator" id="minus" name="minus" value="-" onclick="CheckOperator('-');this.blur()"></td>
+            </tr>
+            <tr>
+               <td><input type="button" id="seven" name="seven" value="7" onclick="CheckOperator('7');this.blur()"></td>
+               <td><input type="button" id="eight" name="eight" value="8" onclick="CheckOperator('8');this.blur()"></td>
+               <td><input type="button" id="nine" name="nine" value="9" onclick="CheckOperator('9');this.blur()"></td>
+               <td><input type="button" class="operator" id="times" name="times" value="x" onclick="CheckOperator('*');this.blur()"></td>
+            </tr>
+            <tr>
+
+               <td><input type="button" id="zero" name="zero" value="0" onclick="CheckOperator('0');this.blur()"></td>
+                <td><input type="button" id="dot" name="dot" value="." onclick="CheckOperator('.');this.blur()"></td>
+               <td><input type="button" id="session-message-submit" name="doit" value="=" onclick="Submitfunction()"></td>
+               <td><input type="button" class="operator" id="div" name="div" value="/" onclick="CheckOperator('/');this.blur()"></td>
+            </tr>
+             <tr>
+               <td><input type="button" id="clear" name="clear" value="c" onclick="calculator.display.value = '';this.blur()"></td>
+               <td><input type="button" id="br1" name="br1" value="(" onclick="CheckOperator('(');this.blur()"></td>
+                <td><input type="button" id="br2" name="br2" value=")" onclick="CheckOperator(')');this.blur()"></td>
+               <td><input type="button" id="percentage" name="percentage" value="%" onclick="CheckOperator('%');this.blur()"></td>
+
+            </tr>
+         </table>
+      </form>
+    <br>
+    <h5 style="text-align: center;">Recent 10 Transactions:</h5>
+    <textarea id="session-log" style="display: block;margin-left: auto;margin-right: auto;" cols="40" rows="12" disabled ></textarea><br>
+    <!--<input id="session-message-submit" type="button" value="Send">-->
+    {{ session_name|json_script:"session-name" }}
+
+    <script>
+        const sessionName = JSON.parse(document.getElementById('session-name').textContent);
+        if(!localStorage.getItem(sessionName))
+            var list=[];
+        else
+        {
+            var list=JSON.parse(localStorage.getItem(sessionName));
+            for(var i=list.length-1;i>=0;i--) {
+                document.querySelector('#session-log').value += (list[i] + '\n');
+            }
+        }
+
+
+        //alert(sessionName)
+        const calcSocket = new WebSocket(
+            'ws://'
+            + window.location.host
+            + '/ws/Calculator_App/'
+            + sessionName
+            + '/'
+        );
+
+        calcSocket.onmessage = function(e) {
+            const data = JSON.parse(e.data);
+            if(list.length===10)
+            {
+                list.shift();
+            }
+            //alert(list.length)
+            list.push(data.message);
+            localStorage.setItem(sessionName,JSON.stringify(list));
+            document.querySelector('#session-log').value='';
+            var n_list=JSON.parse(localStorage.getItem(sessionName));
+
+            for(var i=n_list.length-1;i>=0;i--) {
+                document.querySelector('#session-log').value += (n_list[i] + '\n');
+            }
+        };
+
+        calcSocket.onclose = function(e) {
+            console.error('Session socket closed unexpectedly');
+        };
+        document.addEventListener('keyup',function(e){
+            if(e.shiftKey && e.keyCode===56)
+            {
+                document.querySelector('#times').click();
+                return;
+            }
+            if(e.shiftKey && e.keyCode===53)
+            {
+                document.querySelector('#percentage').click();
+                return;
+            }
+            if(e.shiftKey && e.keyCode===57)
+            {
+                document.querySelector('#br1').click();
+                return;
+            }
+            if(e.shiftKey && e.keyCode===48)
+            {
+                document.querySelector('#br2').click();
+                return;
+            }
+
+            switch(e.keyCode) {
+                case 13:// enter, retur
+                    document.querySelector('#session-message-submit').click();
+                    break;
+                case 49: // 1
+                    document.querySelector('#one').click();
+                    break;
+                case 187: // +
+                    document.querySelector('#plus').click();
+                    break;
+                case 50: // 2
+                    document.querySelector('#two').click();
+                    break;
+                case 51: // 2
+                    document.querySelector('#three').click();
+                    break;
+                case 52: // 2
+                    document.querySelector('#four').click();
+                    break;
+                case 53: // 2
+                    document.querySelector('#five').click();
+                    break;
+                case 54: // 2
+                    document.querySelector('#six').click();
+                    break;
+                case 189: // 2
+                    document.querySelector('#minus').click();
+                    break;
+                case 55: // 2
+                    document.querySelector('#seven').click();
+                    break;
+                case 56: // 2
+                    document.querySelector('#eight').click();
+                    break;
+                case 57: // 2
+                    document.querySelector('#nine').click();
+                    break;
+                case 48: // 2
+                    document.querySelector('#zero').click();
+                    break;
+                case 190: // 2
+                    document.querySelector('#dot').click();
+                    break;
+                case 191: // 2
+                    document.querySelector('#div').click();
+                    break;
+                case 8: // 2{
+                {
+                    var tel = document.querySelector('#display');
+                    var len = tel.value.length;
+                    tel.value = tel.value.substring(0, len - 1);
+                    break;
+            }
+
+            }
+
+        })
+        var isdot=false;
+
+        function CheckOperator(e)
+        {
+          const messageInputDom = document.querySelector('#display');
+          var lastchar=messageInputDom.value.substr(messageInputDom.value.length-1);
+          var operators=['+','-','/','*','%'];
+          if(operators.includes(e))
+            {
+                if(operators.includes(lastchar)) {
+                    //alert(e+' '+lastchar);
+                    var len = messageInputDom.value.length;
+                    messageInputDom.value = messageInputDom.value.substring(0, len - 1);
+
+
+                }
+                messageInputDom.value += e;
+                isdot = false;
+            }
+          else if(e==='.')
+          {
+
+
+              if(!isdot)
+                messageInputDom.value += e;
+              isdot=true;
+          }
+          else
+          {
+              messageInputDom.value += e;
+
+          }
+
+        }
+
+
+        //document.querySelector('#session-message-submit').onclick =
+            function Submitfunction() {
+            const messageInputDom = document.querySelector('#display');
+            var lastchar=messageInputDom.value.substr(messageInputDom.value.length-1);
+            if(lastchar==='+' || lastchar==='-' || lastchar==='/' || lastchar==='*' )
+            {
+                var len=messageInputDom.value.length;
+                messageInputDom.value=messageInputDom.value.substring(0,len-1);
+                Submitfunction()
+                return;
+            }
+            if(lastchar!=='')
+            {
+                try{
+                    var calc = eval(messageInputDom.value.replace('%','/100*'));
+                }
+                catch(err)
+                {
+                    alert('Incorrect Expression');
+                    messageInputDom.value = '';
+                    return;
+                }
+               const message = messageInputDom.value + '=' + calc;
+            calcSocket.send(JSON.stringify({
+                'message': message
+            }));
+            messageInputDom.value = '';
+            isdot=false;
+            }
+
+
+        };
+    </script>
+</body>
+</html>
